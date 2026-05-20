@@ -1,0 +1,132 @@
+/* 基礎設定：PTT 純黑底色與基礎字體放大 */
+body {
+    background-color: #000000;
+    color: #cccccc; /* PTT 預設的灰白字體 */
+    font-family: 'VT323', 'Courier New', monospace;
+    font-size: 20px; /* 基礎字體全面放大 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+/* CRT 螢幕特效保留，稍微降低干擾感 */
+.crt::before {
+    content: " ";
+    display: block;
+    position: absolute;
+    top: 0; left: 0; bottom: 0; right: 0;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+    z-index: 2;
+    background-size: 100% 2px, 3px 100%;
+    pointer-events: none;
+}
+
+/* 設備外框 (固定 768x1024) */
+#device {
+    width: 768px;
+    height: 1024px;
+    border: 2px solid #555555; /* PTT 外框通常是暗灰色 */
+    position: relative;
+    padding: 30px;
+    box-sizing: border-box;
+    background: #000000;
+    box-shadow: inset 0 0 20px #000;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 頂部資訊列：使用 PTT 常見的暗綠或暗藍色調 */
+.header {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 2px solid #008000; /* 暗綠色分隔線 */
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    font-size: 1.4rem;
+    color: #00ffff; /* PTT 系統資訊常用的亮青色 */
+}
+
+/* 下拉選單與按鈕 */
+.log-selector {
+    margin-bottom: 20px;
+    display: flex;
+    gap: 10px;
+    z-index: 3;
+}
+
+select, button {
+    background: #000000;
+    color: #cccccc;
+    border: 1px solid #cccccc;
+    font-family: 'VT323', monospace;
+    font-size: 1.4rem; /* 按鈕字體放大 */
+    padding: 5px 15px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #cccccc;
+    color: #000000;
+}
+
+/* --- 電子書分頁核心邏輯 --- */
+#reader-container {
+    flex-grow: 1;
+    overflow: hidden;
+    position: relative;
+    padding: 20px 0;
+}
+
+#content-area {
+    height: 100%;
+    column-width: 708px; /* 明確鎖定單頁寬度 */
+    column-gap: 40px;    /* 頁面間隔，這個數字很重要 */
+    transition: transform 0.2s steps(3); 
+}
+
+/* Markdown 生成的標籤樣式 (PTT ANSI 色彩配置) 
+  重點字體全面加大！
+*/
+h1 { 
+    font-size: 2.5rem; 
+    color: #ffff00; /* PTT 最愛用的高亮黃色標題 */
+    border-bottom: 1px solid #555555; 
+    padding-bottom: 5px;
+}
+
+h2 { 
+    font-size: 2.2rem; 
+    color: #00ffff; /* PTT 次級標題的亮青色 */
+}
+
+h3 {
+    font-size: 1.8rem;
+    color: #00ff00; /* 亮綠色 */
+}
+
+ul { padding-left: 20px; }
+
+li { 
+    margin-bottom: 12px; 
+    line-height: 1.6; 
+    font-size: 1.5rem; /* 內文清單顯著放大 */
+}
+
+strong { 
+    color: #ff0000; /* 重要資訊（例如大跌）用亮紅色，很有 PTT 股版的味道 */
+    font-weight: normal; /* BBS 系統沒有粗體，只有高亮顏色 */
+}
+
+/* 底部導航 */
+.controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    font-size: 1.6rem;
+    color: #00ffff;
+    z-index: 3;
+}

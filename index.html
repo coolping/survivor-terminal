@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>SURVIVOR TERMINAL // TAIEX</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+    <div id="device" class="crt">
+        <div class="header">
+            <span>SYS_VER: 2.0.0 (STATIC)</span>
+            <span>CONNECTION: SECURE</span>
+            <span id="current-date"></span>
+        </div>
+
+        <div class="log-selector">
+            <select id="log-dropdown" onchange="loadSelectedLog()"></select>
+        </div>
+
+        <div id="reader-container">
+            <div id="content-area"></div>
+        </div>
+
+        <div class="controls">
+            <button onclick="prevPage()">[ < PREV ]</button>
+            <span id="page-indicator">PAGE 1 / 1</span>
+            <button onclick="nextPage()">[ NEXT > ]</button>
+        </div>
+    </div>
+
+    <script>
+        let logs = [];
+        let currentPage = 0;
+        let totalPages = 1;
+
+        // 啟動時讀取 logs.json 清單
+        fetch('logs.json')
+            .then(res => res.json())
+            .then(data => {
+                logs = data;
+                const dropdown = document.getElementById('log-dropdown');
+                data.forEach(log => {
+                    let option = document.createElement('option');
+                    option.value = log.filename;
+                    option.text = "LOG_" + log.date;
+                    dropdown.appendChild(option);
+                });
+                if(logs.length > 0) loadSelectedLog();
+            })
+            .catch(err => {
+                document.getElementById('content-area').innerHTML = "<h1>[ERROR] 找不到 logs.json 雷達資料</h1>";
+            });
+
+        function loadSelectedLog() {
+            const filename = document.getElementById('log-dropdown').value;
+            if (!filename) return;
+
+            // 直接拉取 MD 原始檔
+            fetch(`logs/${filename}`)
+                .then(res => res.text())
+                .then(text => {
+                    const contentArea = document.getElementById('content-area');
+                    // 使用 marked 引擎將 MD 轉成 HTML
+                    contentArea.innerHTML = marked.parse(text);
+                    
+                    currentPage = 0;
+                    contentArea.style.transform = `translateX(0px)`;
+                    
+                    setTimeout(() => {
+                        const gap = 40; 
+                        totalPages = Math.ceil(contentArea.scrollWidth / (contentArea.clientWidth + gap));
+                        if (totalPages === 0) totalPages = 1; 
+                        updateIndicator();
+                    }, 100); 
+                });
+        }
+
+        function nextPage() {
+            if (currentPage < totalPages - 1) {
+                currentPage++;
+                updateView();
+            }
+        }
+
+        function prevPage() {
+            if (currentPage > 0) {
+                currentPage--;
+                updateView();
+            }
+        }
+
+        function updateView() {
+            const contentArea = document.getElementById('content-area');
+            const gap = 40; 
+            const shift = currentPage * (contentArea.clientWidth + gap);
+            contentArea.style.transform = `translateX(-${shift}px)`;
+            updateIndicator();
+        }
+
+        function updateIndicator() {
+            document.getElementById('page-indicator').innerText = `PAGE ${currentPage + 1} / ${totalPages}`;
+        }
+    </script>
+</body>
+</html>
